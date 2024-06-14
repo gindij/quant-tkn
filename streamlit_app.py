@@ -1,5 +1,6 @@
 from collections import Counter, defaultdict
 import pathlib
+from typing import Dict
 
 import streamlit as st
 import pandas as pd
@@ -11,39 +12,31 @@ from plotting_utils import (
     MIN_OCCURRENCES,
 )
 
-ALL_BOOKS = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
+ALL_BOOK_NAMES = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
 ALL_TAAMIM = TAAMIM.values()
 
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
 
 
 @st.cache_data
-def load_all_books():
+def load_book(book_name: str) -> Book:
     """
     Load all books of the Bible.
 
     :return: A dictionary mapping book names to Book objects.
     """
-
-    books = {}
-    for book_name in ALL_BOOKS:
-        book = Book.from_text_file(
-            BASE_PATH / "data" / "cantillation" / f"{book_name.lower()}.txt"
-        )
-        books[book_name] = book
-    return books
+    return Book.from_text_file(
+        BASE_PATH / "data" / "cantillation" / f"{book_name.lower()}.txt"
+    )
 
 
-@st.cache_data
-def load_taamim_data(book_name: str) -> pd.DataFrame:
+def extract_taamim_data(book: Book) -> pd.DataFrame:
     """
     Load the taamim data for a given book.
 
-    :param book_name: The name of the book whose taamim data should be loaded.
+    :param book: The Book object to analyze.
     :return: A Counter object containing the frequency of each ta'am in the book.
     """
-    all_books = load_all_books()
-    book = all_books[book_name]
     taamim = [taam.name for taam in book.taamim]
     taamim_counter = Counter(taamim)
     return taamim_counter
@@ -53,18 +46,19 @@ def render_taamim_analysis():
     """
     Render the high-level ta'amim analysis widget.
     """
+
     st.header("Ta'amim Frequency Analysis")
     st.write("This tool allows you to analyze the frequency of ta'amim in the Bible.")
 
-    book_names = st.multiselect("Select a book", ALL_BOOKS)
+    book_names = st.multiselect("Select a book", ALL_BOOK_NAMES)
 
     # create a bar chart showing the frequency of each ta'am in descending order
     # of frequency
     if len(book_names) > 0:
         total = Counter()
         for book_name in book_names:
-            counts = load_taamim_data(book_name)
-            total += counts
+            book = load_book(book_name)
+            total += extract_taamim_data(book)
 
         plot_taamim_frequency_bar_chart(total)
 
@@ -77,9 +71,9 @@ def render_taamim_analysis():
     top_k = st.number_input("Number of combinations to show", min_value=5, max_value=50)
     most_or_least_common = st.radio("Most or least common", ["Most", "Least"])
 
-    all_books = load_all_books()
     total = Counter()
-    for book_name, book in all_books.items():
+    for book_name in ALL_BOOK_NAMES:
+        book = load_book(book_name)
         taam_sequences = book.count_n_taam_sequences(seq_length)
         if len(taam_sequences) == 0:
             continue
@@ -99,20 +93,19 @@ def render_taamim_analysis():
 
 def render_taamim_combination_finder():
     """
-    Render the ta'amim combination finder widget.
+    Render the ta'amim sequence finder widget.
     """
-    st.header("Ta'amim Combination Finder")
+    st.header("Ta'amim Sequence Finder")
     st.write(
-        "This tool allows you to find all verses that contain a specific combination of ta'amim."
+        "This tool allows you to find all verses that contain a specific sequence of ta'amim."
     )
 
     taam_sequence = st.multiselect("Select ta'amim", ALL_TAAMIM)
 
-    all_books = load_all_books()
-
     if len(taam_sequence) > 0:
         verses = defaultdict(list)
-        for book_name, book in all_books.items():
+        for book_name in ALL_BOOK_NAMES:
+            book = load_book(book_name)
             verses[book_name].extend(book.find_verses_with_taam_sequence(taam_sequence))
 
         if sum(len(v) for v in verses.values()) == 0:
