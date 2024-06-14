@@ -1,0 +1,13 @@
+- aliyot
+- parshiot
+- kadma vs pashta
+- tere kadmin search
+
+
+- analyses:
+    - distribution of taamim?
+    - distribution of letters?
+    - distribution of parsha lengths?
+    - longest run of words starting with the same letter?
+    - least/most common n-taam patterns
+    - dikduk rule exceptions

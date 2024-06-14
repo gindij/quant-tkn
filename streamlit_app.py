@@ -130,6 +130,6 @@ def render_taamim_combination_finder():
 if __name__ == "__main__":
     import os
 
-    print(os.listdir())
+    print(os.listdir("data"))
     render_taamim_analysis()
     render_taamim_combination_finder()
