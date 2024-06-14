@@ -1,4 +1,5 @@
 from collections import Counter, defaultdict
+import pathlib
 
 import streamlit as st
 import pandas as pd
@@ -13,6 +14,8 @@ from plotting_utils import (
 ALL_BOOKS = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
 ALL_TAAMIM = TAAMIM.values()
 
+BASE_PATH = pathlib.Path(__file__).parent.resolve()
+
 
 @st.cache_data
 def load_all_books():
@@ -21,9 +24,12 @@ def load_all_books():
 
     :return: A dictionary mapping book names to Book objects.
     """
+
     books = {}
     for book_name in ALL_BOOKS:
-        book = Book.from_text_file(f"data/cantillation/{book_name}.txt")
+        book = Book.from_text_file(
+            BASE_PATH / "data" / "cantillation" / f"{book_name}.txt"
+        )
         books[book_name] = book
     return books
 
