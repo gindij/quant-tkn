@@ -28,7 +28,7 @@ def load_all_books():
     books = {}
     for book_name in ALL_BOOKS:
         book = Book.from_text_file(
-            BASE_PATH / "data" / "cantillation" / f"{book_name}.txt"
+            BASE_PATH / "data" / "cantillation" / f"{book_name.lower()}.txt"
         )
         books[book_name] = book
     return books
