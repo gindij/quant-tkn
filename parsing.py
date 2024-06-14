@@ -1,6 +1,6 @@
 from collections import namedtuple, OrderedDict, defaultdict
 import pprint
-from typing import List, Optional, Set, Collection
+from typing import List, Optional, Dict
 import tqdm
 
 
@@ -22,7 +22,6 @@ TAAMIM = {
     "\u0597": "ravia",
     "\u0598": "zarqa",
     "\u0599": "pashta",
-    "\u0599\u0599": "tere_kadmin",
     "\u059A": "yetiv",
     "\u059B": "tevir",
     "\u059C": "gerish",
@@ -36,7 +35,8 @@ TAAMIM = {
     "\u05A5": "maarikh",
     "\u05A6": "tere_taame",
     "\u05A7": "darga",
-    "\u05A8": "pashta",
+    "\u05A8": "qadma",
+    "\u0599\u0599": "tere_qadmin",
     "\u05A9": "talsha",
     "\u05AA": "yareah_ben_yomo",
     "\u05AE": "zarqa",
@@ -280,11 +280,11 @@ class Word:
         """
         taamim = self._taamim
 
-        # if there are two pashtas in a row, replace the two with a single
-        # taam called tere_kadmin
         for i in range(len(taamim) - 1):
+            # if there are two qadma in a row, replace the two with a single
+            # taam called tere_qadmin
             if taamim[i].name == "pashta" and taamim[i + 1].name == "pashta":
-                taamim[i] = Taam("tere_kadmin")
+                taamim[i] = Taam("tere_qadmin")
                 taamim.pop(i + 1)
                 break
 
@@ -373,7 +373,7 @@ class Verse:
         words = []
         for word in s.split():
             letters = []
-            for char in word:
+            for i, char in enumerate(word):
                 if char in LETTERS:
                     letters.append(Letter(char))
                 elif char in TAAMIM:
@@ -386,18 +386,26 @@ class Verse:
                     letters[-1].add_nikkud(Nikkud(NEKUDOT[char]))
             words.append(Word(letters))
 
-        # change any pashtas that are followed by a gerish to azlas
-        for wd1, wd2 in zip(words, words[1:]):
-            if wd1.has_taam("pashta") and wd2.has_taam("gerish"):
-                wd1.rename_taam("pashta", "azla")
-            elif wd1.has_taam("pashta") and wd1.has_taam("gerish"):
-                wd1.rename_taam("pashta", "azla")
+        # change any pashtas in the middle of a word to kadmas
+        for wd in words:
+            for i, letter in enumerate(wd.letters):
+                no_more_pashtas = not any(
+                    wd.letters[j].has_taam("pashta")
+                    for j in range(i + 1, len(wd.letters))
+                )
+                if letter.has_taam("pashta") and i < len(wd) - 1 and no_more_pashtas:
+                    letter.rename_taam("pashta", "qadma")
 
-        # # make sure every verse ends with a sof_passuq
+        # change any qadmas that are followed by a qadma to azlas
+        for wd1, wd2 in zip(words, words[1:]):
+            if wd1.has_taam("qadma") and wd2.has_taam("gerish"):
+                wd1.rename_taam("qadma", "azla")
+            elif wd1.has_taam("qadma") and wd1.has_taam("gerish"):
+                wd1.rename_taam("qadma", "azla")
+
+        # make sure every verse ends with a sof_passuq
         while len(words[-1]) == 0:
             words.pop()
-        # if not words[-1].has_taam("sof_passuq"):
-        #     words[-1].letters[-1].add_taam(Taam("sof_passuq"))
 
         return cls(idx, words)
 
@@ -456,8 +464,7 @@ class Verse:
         all_taamim = [
             taam
             for word in self._words
-            for letter in word.letters
-            for taam in letter.taamim
+            for taam in word.taamim
             if taam.name != "maamid"
         ]
         for i in range(len(all_taamim) - len(taam_sequence) + 1):
@@ -657,10 +664,9 @@ class Book:
         """
         words = []
         for word in tqdm.tqdm(self.words):
-            for letter in word.letters:
-                if any(taam.name == taam_name for taam in letter.taamim):
-                    words.append(word)
-                    break
+            if any(taam.name == taam_name for taam in word.taamim):
+                words.append(word)
+                break
         return words
 
     def find_taam_sequences(self, taam_sequence: List[str]) -> List[Verse]:
@@ -676,7 +682,7 @@ class Book:
                 verses.append(verse)
         return verses
 
-    def count_n_taam_sequences(self, n: int) -> Set[Collection[Taam]]:
+    def count_n_taam_sequences(self, n: int) -> Dict[tuple, int]:
         """
         Collect all occurring n-Taam sequences in a book.
 
