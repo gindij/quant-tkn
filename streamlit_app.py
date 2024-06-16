@@ -5,15 +5,15 @@ from typing import Dict
 import streamlit as st
 import pandas as pd
 
-from parsing import Book, TAAMIM
-from plotting_utils import (
+from parsing.parsing import Book, TAAMIM
+from utils.plotting_utils import (
     plot_taamim_frequency_bar_chart,
     plot_taamim_sequence_frequency_bar_chart,
     MIN_OCCURRENCES,
 )
 
 ALL_BOOK_NAMES = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
-ALL_TAAMIM = TAAMIM.values()
+ALL_TAAMIM = set(TAAMIM.values())
 
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
 
@@ -70,11 +70,12 @@ def render_taamim_analysis():
     seq_length = st.number_input("Sequence length", min_value=2, max_value=8)
     top_k = st.number_input("Number of combinations to show", min_value=5, max_value=50)
     most_or_least_common = st.radio("Most or least common", ["Most", "Least"])
+    include_meshartim = st.checkbox("Include Meshartim 1", value=True)
 
     total = Counter()
     for book_name in ALL_BOOK_NAMES:
         book = load_book(book_name)
-        taam_sequences = book.count_n_taam_sequences(seq_length)
+        taam_sequences = book.count_n_taam_sequences(seq_length, include_meshartim)
         if len(taam_sequences) == 0:
             continue
         total += Counter(taam_sequences)
@@ -99,6 +100,7 @@ def render_taamim_combination_finder():
     st.write(
         "This tool allows you to find all verses that contain a specific sequence of ta'amim."
     )
+    include_meshartim = st.checkbox("Include Meshartim 2", value=True)
 
     taam_sequence = st.multiselect("Select ta'amim", ALL_TAAMIM)
 
@@ -106,7 +108,9 @@ def render_taamim_combination_finder():
         verses = defaultdict(list)
         for book_name in ALL_BOOK_NAMES:
             book = load_book(book_name)
-            verses[book_name].extend(book.find_verses_with_taam_sequence(taam_sequence))
+            verses[book_name].extend(
+                book.find_verses_with_taam_sequence(taam_sequence, include_meshartim)
+            )
 
         if sum(len(v) for v in verses.values()) == 0:
             st.write("No verses found with the selected ta'amim sequence.")
