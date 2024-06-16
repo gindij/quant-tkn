@@ -1,8 +1,8 @@
 from typing import List, Optional
 
-from parsing.taam import Taam
 from parsing.niqud import Niqud
-from parsing.symbols import TAAMIM_SYMBOLS, NEQUDOT_SYMBOLS
+from parsing.symbols import NEQUDOT_SYMBOLS, TAAMIM_SYMBOLS
+from parsing.taam import Taam
 
 
 class Letter:

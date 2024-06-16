@@ -2,14 +2,8 @@ from typing import List
 
 from parsing.letter import Letter
 from parsing.niqud import Niqud
-from parsing.symbols import (
-    LETTERS,
-    TAAMIM_NAMES_TO_SYMBOLS,
-    TAAMIM_SYMBOLS_TO_NAMES,
-    NEQUDOT_SYMBOLS_TO_NAMES,
-    PDF,
-    LRE,
-)
+from parsing.symbols import (LETTERS, LRE, NEQUDOT_SYMBOLS_TO_NAMES, PDF,
+                             TAAMIM_NAMES_TO_SYMBOLS, TAAMIM_SYMBOLS_TO_NAMES)
 from parsing.taam import Taam
 from parsing.word import Word
 

@@ -1,4 +1,4 @@
-from parsing.symbols import TAAMIM_SYMBOLS_TO_NAMES, TAAMIM_NAMES_TO_SYMBOLS
+from parsing.symbols import TAAMIM_NAMES_TO_SYMBOLS, TAAMIM_SYMBOLS_TO_NAMES
 
 
 class Taam:

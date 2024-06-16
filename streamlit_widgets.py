@@ -1,16 +1,15 @@
-from collections import Counter, defaultdict
-import pandas as pd
 import pathlib
-import streamlit as st
+from collections import Counter, defaultdict
 from typing import Dict
 
-from parsing.symbols import TAAMIM_NAMES
+import pandas as pd
+import streamlit as st
+
 from parsing import Book
-from utils.plotting_utils import (
-    plot_taamim_frequency_bar_chart,
-    plot_taamim_sequence_frequency_bar_chart,
-    MIN_OCCURRENCES,
-)
+from parsing.symbols import TAAMIM_NAMES
+from utils.plotting_utils import (MIN_OCCURRENCES,
+                                  plot_taamim_frequency_bar_chart,
+                                  plot_taamim_sequence_frequency_bar_chart)
 
 ALL_BOOK_NAMES = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
 BASE_PATH = pathlib.Path(__file__).parent.resolve()

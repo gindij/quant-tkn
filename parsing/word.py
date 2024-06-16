@@ -1,7 +1,7 @@
 from typing import List
 
 from parsing.letter import Letter
-from parsing.symbols import TAAME_MESHARET, LETTERS
+from parsing.symbols import LETTERS, TAAME_MESHARET
 from parsing.taam import Taam
 
 

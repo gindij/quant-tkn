@@ -1,10 +1,8 @@
 import streamlit as st
 
-from streamlit_widgets import (
-    taam_distribution_widget,
-    taam_sequence_distribution_widget,
-    taam_sequence_finder_widget,
-)
+from streamlit_widgets import (taam_distribution_widget,
+                               taam_sequence_distribution_widget,
+                               taam_sequence_finder_widget)
 
 if __name__ == "__main__":
     st.title("Quantitative Ta'amim Analysis")

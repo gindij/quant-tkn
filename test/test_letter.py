@@ -1,6 +1,6 @@
 import pytest
 
-from parsing import Letter, Taam, Niqud
+from parsing import Letter, Niqud, Taam
 
 
 def test_letter_from_string():

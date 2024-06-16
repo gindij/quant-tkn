@@ -1,6 +1,6 @@
 import pytest
 
-from parsing import Word, Taam
+from parsing import Taam, Word
 
 
 def test_word_with_one_taam():

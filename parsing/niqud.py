@@ -1,9 +1,5 @@
-from parsing.symbols import (
-    NEQUDOT_SYMBOLS,
-    NEQUDOT_SYMBOLS_TO_NAMES,
-    NEQUDOT_NAMES_TO_SYMBOLS,
-    NEQUDOT_NAMES,
-)
+from parsing.symbols import (NEQUDOT_NAMES, NEQUDOT_NAMES_TO_SYMBOLS,
+                             NEQUDOT_SYMBOLS, NEQUDOT_SYMBOLS_TO_NAMES)
 
 
 class Niqud:
