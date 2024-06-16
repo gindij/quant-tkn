@@ -123,6 +123,15 @@ class Book:
         """
         return self._taamim
 
+    @property
+    def taamim_without_meshartim(self):
+        """
+        Get the taamim in the Book without the meshartim.
+
+        :return: The taamim in the Book without the meshartim.
+        """
+        return self._taamim_without_meshartim
+
     def find_verses_with_taam_sequence(
         self, taam_sequence: List[str], include_meshartim: bool
     ) -> List[Verse]:
@@ -158,7 +167,7 @@ class Book:
                 taam_sequence = []
                 for j in range(n):
                     if i + j < len(taamim):
-                        taam_sequence.append(verse.taamim[i + j].name)
+                        taam_sequence.append(taamim[i + j].name)
                 if len(taam_sequence) == n:
                     taam_sequence_counts[tuple(taam_sequence)] += 1
         return taam_sequence_counts
