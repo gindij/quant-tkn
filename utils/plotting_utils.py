@@ -37,6 +37,7 @@ def plot_taamim_sequence_frequency_bar_chart(
         "Count", ascending=least_common
     )
     df.loc[:, "Taam Sequence"] = df["Taam Sequence"].apply(
+        # arrow pointing left
         lambda seq: "\u27F5".join([TAAM_ENGLISH_TO_HEBREW_NAMES[n] for n in seq])
     )
     df = df[df["Count"] >= MIN_OCCURRENCES]

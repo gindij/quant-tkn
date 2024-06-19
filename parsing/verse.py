@@ -157,4 +157,4 @@ class Verse:
         return iter(self._words)
 
     def __repr__(self) -> str:
-        return LRE + " ".join([str(word) for word in self._words]) + PDF
+        return " ".join([str(word) for word in self._words])
