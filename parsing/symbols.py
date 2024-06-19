@@ -48,6 +48,38 @@ TAAME_MESHARET = {
     "qadma",
     "azla",
 }
+TAAM_ENGLISH_TO_HEBREW_NAMES = {
+    "atnah": "אתנח",
+    "segolta": "סגולתא",
+    "shalshelet": "שלשלת",
+    "zaqef_qaton": "זקף קטון",
+    "zaqef_gadol": "זקף גדול",
+    "tarha": "טרחא",
+    "ravia": "רביע",
+    "zarqa": "זרקא",
+    "pashta": "פשתא",
+    "yetiv": "יתיב",
+    "tevir": "תביר",
+    "gerish": "גריש",
+    "shene_gerishin": "שני גרשין",
+    "karne_farah": "קרני פרה",
+    "tarsa": "תרסא",
+    "pazer_gadol": "פזר גדול",
+    "yareah_ben_yomo": "ירח בן יומו",
+    "shofar_holekh": "שופר הולך",
+    "shofar_mehupakh": "שופר מהופך",
+    "maarikh": "מאריך",
+    "tere_taame": "תרי טעמי",
+    "darga": "דרגא",
+    "qadma": "קדמא",
+    "tere_qadmin": "תרי קדמין",
+    "talsha": "טלשא",
+    "sof_passuq": "סוף פסוק",
+    "maamid": "מעמיד",
+    "paseq": "פסק",
+    "azla": "אזלא",
+}
+TAAM_HEBREW_TO_ENGLISH_NAMES = {v: k for k, v in TAAM_ENGLISH_TO_HEBREW_NAMES.items()}
 
 NEQUDOT_SYMBOLS_TO_NAMES = {
     "\u05B0": "shva",

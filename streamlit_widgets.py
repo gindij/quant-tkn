@@ -6,10 +6,12 @@ import pandas as pd
 import streamlit as st
 
 from parsing import Book
-from parsing.symbols import TAAMIM_NAMES
-from utils.plotting_utils import (MIN_OCCURRENCES,
-                                  plot_taamim_frequency_bar_chart,
-                                  plot_taamim_sequence_frequency_bar_chart)
+from parsing.symbols import TAAM_HEBREW_TO_ENGLISH_NAMES, TAAM_ENGLISH_TO_HEBREW_NAMES
+from utils.plotting_utils import (
+    MIN_OCCURRENCES,
+    plot_taamim_frequency_bar_chart,
+    plot_taamim_sequence_frequency_bar_chart,
+)
 
 ALL_BOOK_NAMES = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
@@ -114,14 +116,17 @@ def taam_sequence_finder_widget(include_meshartim: bool):
         "This tool allows you to find all verses that contain a specific sequence of ta'amim."
     )
 
-    taam_sequence = st.multiselect("Select ta'amim", sorted(TAAMIM_NAMES))
+    taam_sequence = st.multiselect(
+        "Select ta'amim", sorted(TAAM_HEBREW_TO_ENGLISH_NAMES.keys())
+    )
 
     if len(taam_sequence) > 0:
         verses = defaultdict(list)
         for book_name in ALL_BOOK_NAMES:
             book = load_book(book_name)
+            seq = [TAAM_HEBREW_TO_ENGLISH_NAMES[taam] for taam in taam_sequence]
             verses[book_name].extend(
-                book.find_verses_with_taam_sequence(taam_sequence, include_meshartim)
+                book.find_verses_with_taam_sequence(seq, include_meshartim)
             )
 
         if sum(len(v) for v in verses.values()) == 0:
