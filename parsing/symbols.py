@@ -81,6 +81,19 @@ TAAM_ENGLISH_TO_HEBREW_NAMES = {
 }
 TAAM_HEBREW_TO_ENGLISH_NAMES = {v: k for k, v in TAAM_ENGLISH_TO_HEBREW_NAMES.items()}
 
+
+def convert_taam_name_to_symbol(name: str) -> str:
+    """
+    Convert a ta'am name to its corresponding symbol.
+
+    :param name: The name of the ta'am.
+    :return: The symbol of the ta'am.
+    """
+    if name == "azla":
+        return TAAMIM_NAMES_TO_SYMBOLS["pashta"]
+    return TAAMIM_NAMES_TO_SYMBOLS[name]
+
+
 NEQUDOT_SYMBOLS_TO_NAMES = {
     "\u05B0": "shva",
     "\u05B1": "hataf_segol",
