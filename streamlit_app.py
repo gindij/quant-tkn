@@ -1,11 +1,12 @@
 import pandas as pd
 import streamlit as st
 
-from parsing.symbols import (TAAM_HEBREW_TO_ENGLISH_NAMES,
-                             convert_taam_name_to_symbol)
-from streamlit_widgets import (taam_distribution_widget,
-                               taam_sequence_distribution_widget,
-                               taam_sequence_finder_widget)
+from parsing.symbols import TAAM_HEBREW_TO_ENGLISH_NAMES, convert_taam_name_to_symbol
+from streamlit_widgets import (
+    taam_distribution_widget,
+    taam_sequence_distribution_widget,
+    taam_sequence_finder_widget,
+)
 
 if __name__ == "__main__":
     st.title("Quantitative Ta'amim Analysis")
@@ -48,6 +49,14 @@ if __name__ == "__main__":
             )
         guide = pd.DataFrame(rows, columns=["Hebrew Name", "English Name", "Symbol"])
         st.markdown(guide.style.hide(axis="index").to_html(), unsafe_allow_html=True)
+
+        st.header("Sources")
+        st.markdown(
+            """
+            The texts that underlie this app come from the [Leningrad Codex](http://tanach.us).
+            The data about where aliyot start and end comes from [Sefaria](https://www.sefaria.org).
+            """
+        )
 
     with taamim:
         include_meshartim = st.checkbox("Include Meshartim", value=True)
