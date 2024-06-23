@@ -30,7 +30,7 @@ class Niqud:
         :param name: The name of the Niqud.
         :return: A Niqud object.
         """
-        assert name in NEQUDOT_NAMES_TO_SYMBOLS, f"Invalid niqud name: {name}"
+        assert name in NEQUDOT_NAMES, f"Invalid niqud name: {name}"
         return cls(name, NEQUDOT_NAMES_TO_SYMBOLS[name])
 
     def __repr__(self):

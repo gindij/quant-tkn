@@ -1,11 +1,12 @@
-from collections import defaultdict
-from typing import Dict, List
+from collections import Counter
+from typing import Dict, List, Tuple
 
 import tqdm
 
 from parsing.chapter import Chapter
-from parsing.verse import Verse
-from parsing.word import Word
+from parsing.metadata import BookMetadata
+from parsing.parasha import Parasha
+from parsing.verse import TaamSequenceResult, Verse
 from utils.text_parsing_utils import TextParsingUtils
 
 
@@ -14,28 +15,39 @@ class Book:
     A Book is a sequence of chapters.
     """
 
-    def __init__(self, name: str, chapters: List[Chapter]):
+    @staticmethod
+    def _extract_parshiot(
+        chapters: List[Chapter], metadata: BookMetadata
+    ) -> List[Parasha]:
+        """
+        Extract the Parshiot from the sequence of chapters and the
+        book's metadata.
+
+        :param chapters: The sequence of chapters.
+        :param metadata: The metadata of the book (with information about where
+                         aliyot and parshiot start and end).
+        :return: A list of parshiot objects that make up this book.
+        """
+        return [
+            Parasha.from_chapters(metadata, chapters) for metadata in metadata.parshiot
+        ]
+
+    def __init__(self, name: str, chapters: List[Chapter], metadata: BookMetadata):
         self.name = name
         self._chapters = chapters
+        self._parshiot = Book._extract_parshiot(chapters, metadata)
         self._verses = [verse for chapter in chapters for verse in chapter.verses]
-        self._words = [word for verse in self._verses for word in verse._words]
-        self._letters = [letter for word in self._words for letter in word.letters]
-        self._nequdot = [niqud for letter in self._letters for niqud in letter.nequdot]
-        self._taamim = [taam for word in self._words for taam in word.taamim]
-        self._taamim_without_meshartim = [
-            taam for word in self._words for taam in word.taamim_without_meshartim
-        ]
 
     def __repr__(self) -> str:
         parts = []
         for chapter in self.chapters:
-            parts.append(f"Chapter {chapter.idx}\n")
+            parts.append(f"Chapter {chapter._idx}\n")
             parts.append(str(chapter))
             parts.append("\n")
         return "".join(parts)
 
     @classmethod
-    def from_string(cls, s: str) -> "Book":
+    def chapters_from_string(cls, s: str) -> "Book":
         """
         Parse a book from a string.
 
@@ -55,7 +67,9 @@ class Book:
                 chapters.append(Chapter(chapter_idx, []))
             elif TextParsingUtils.is_line_start_of_book(line):
                 book_name = TextParsingUtils.extract_book_name(line)
-        return Book(book_name, chapters)
+
+        metadata = BookMetadata(book_name)
+        return Book(book_name, chapters, metadata)
 
     @classmethod
     def from_text_file(cls, file_path: str) -> "Book":
@@ -67,34 +81,16 @@ class Book:
         """
         with open(file_path, "r", encoding="utf-8") as book:
             lines = book.read()
-            return cls.from_string(lines)
+            return cls.chapters_from_string(lines)
 
     @property
-    def letters(self):
+    def parshiot(self):
         """
-        Get the letters in the Book.
+        Get the Parshiot in the Book.
 
-        :return: The letters in the Book.
+        :return: The Parshiot in the Book.
         """
-        return self._letters
-
-    @property
-    def words(self):
-        """
-        Get the words in the Book.
-
-        :return: The words in the Book.
-        """
-        return self._words
-
-    @property
-    def verses(self):
-        """
-        Get the verses in the Book.
-
-        :return: The verses in the Book.
-        """
-        return self._verses
+        return self._parshiot
 
     @property
     def chapters(self):
@@ -106,68 +102,68 @@ class Book:
         return self._chapters
 
     @property
-    def nequdot(self):
+    def verses(self):
         """
-        Get the nequdot in the Book.
+        Get the verses in the Book.
 
-        :return: The nequdot in the Book.
+        :return: The verses in the Book.
         """
-        return self._nequdot
+        return self._verses
 
     @property
     def taamim(self):
         """
-        Get the taamim in the Book.
+        Get the Taamim in the Book.
 
-        :return: The taamim in the Book.
+        :return: The Taamim in the Book.
         """
-        return self._taamim
+        return [taam for verse in self.verses for taam in verse.taamim]
 
     @property
     def taamim_without_meshartim(self):
         """
-        Get the taamim in the Book without the meshartim.
+        Get the Taamim in the Book without the Meshartim.
 
-        :return: The taamim in the Book without the meshartim.
+        :return: The Taamim in the Book without the Meshartim.
         """
-        return self._taamim_without_meshartim
+        return [
+            taam for verse in self.verses for taam in verse.taamim_without_meshartim
+        ]
 
     def find_verses_with_taam_sequence(
-        self, taam_sequence: List[str], include_meshartim: bool
-    ) -> List[Verse]:
+        self, taam_sequence: List[str], include_meshartim: bool = True
+    ) -> Dict[str, List[List[Tuple[Verse, TaamSequenceResult]]]]:
         """
-        Find all verses containing a specific Taam.
+        Find verses with a sequence of Taamim broken down by parasha and aliyah.
 
-        :param taam_name: The name of the Taam.
-        :param include_meshartim: Whether to include taame mesharet when looking for verses containing a sequence.
-        :return: A list of Verses containing the Taam.
+        :param taam_sequence: The taam sequence to find.
+        :param include_meshartim: Whether to include Meshartim in the search, defaults to True
+        :return: A dictionary mapping parashiot to a list of lists of verses. (The elements
+                 of the outer list are the aliyot, and the elements of the inner list are
+                 the verses in the aliyah that contain the sequence.)
         """
-        verses = []
-        for verse in tqdm.tqdm(self.verses):
-            if verse.has_taam_sequence(taam_sequence, include_meshartim):
-                verses.append(verse)
-        return verses
+        by_parasha = {}
+        for parasha in self.parshiot:
+            verses_by_aliyah = parasha.find_verses_with_taam_sequence(
+                taam_sequence, include_meshartim
+            )
+            if verses_by_aliyah:
+                by_parasha[parasha.name] = verses_by_aliyah
+        return by_parasha
 
     def count_n_taam_sequences(
         self, n: int, include_meshartim: bool = True
     ) -> Dict[tuple, int]:
         """
-        Collect all occurring n-Taam sequences in a book.
+        Count the number of n-Taam sequences in the Book.
 
-        :param n: The length of the taam sequence to look for.
-        :param include_meshartim: Whether to include taame mesharet in the sequences.
-        :return: A list of n-Taam sequences that occur in this book.
+        :param n: The length of the Taam sequences to count.
+        :param include_meshartim: Whether or not to include Meshartim when looking
+                                  for sequences, defaults to True
+        :return: The sequence (tuple) mapped to the number of occurrences of that
+                 sequence in the Book.
         """
-        taam_sequence_counts = defaultdict(int)
-        for verse in tqdm.tqdm(self.verses):
-            taamim = (
-                verse.taamim if include_meshartim else verse.taamim_without_meshartim
-            )
-            for i in range(len(taamim) - n + 1):
-                taam_sequence = []
-                for j in range(n):
-                    if i + j < len(taamim):
-                        taam_sequence.append(taamim[i + j].name)
-                if len(taam_sequence) == n:
-                    taam_sequence_counts[tuple(taam_sequence)] += 1
+        taam_sequence_counts = Counter()
+        for parasha in self.parshiot:
+            taam_sequence_counts += parasha.count_n_taam_sequences(n, include_meshartim)
         return taam_sequence_counts

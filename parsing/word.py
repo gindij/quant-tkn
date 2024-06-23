@@ -127,3 +127,6 @@ class Word:
 
     def __len__(self) -> int:
         return len(self.letters)
+
+    def __iter__(self):
+        return iter(self.letters)
