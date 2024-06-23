@@ -19,7 +19,7 @@ BOOK_FILE_PATH = "data/cantillation/genesis.txt"
 
 
 def test_book_from_string():
-    book = Book.from_string(BOOK_STRING)
+    book = Book.chapters_from_string(BOOK_STRING)
     assert book.name == "Genesis"
     assert len(book.chapters) == 1
     assert len(book.verses) == 7
@@ -35,16 +35,22 @@ def test_book_from_text_file():
 
 
 def test_find_verses_with_taam_sequence():
-    book = Book.from_string(BOOK_STRING)
+    book = Book.chapters_from_string(BOOK_STRING)
+
     seq1 = ["maarikh", "tarha"]
     verses_with_meshartim = book.find_verses_with_taam_sequence(
         seq1, include_meshartim=True
     )
+    num_verses_with_meshartim = len(verses_with_meshartim["Bereshit"][0])
+    assert num_verses_with_meshartim == 4
+
     verses_without_meshartim = book.find_verses_with_taam_sequence(
         seq1, include_meshartim=False
     )
-    assert len(verses_with_meshartim) == 5
-    assert len(verses_without_meshartim) == 0
+    num_verses_without_meshartim = len(verses_without_meshartim["Bereshit"][0])
+    # this should be 7 since the maarikh will be excluded so we will return the verses
+    # that only have tarhas (which is all of them)
+    assert num_verses_without_meshartim == 7
 
     seq2 = ["paseq", "pashta"]
     verses = book.find_verses_with_taam_sequence(seq2, include_meshartim=True)

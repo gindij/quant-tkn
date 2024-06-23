@@ -1,11 +1,29 @@
-from typing import List
+from typing import List, Optional
 
-from parsing.letter import Letter
-from parsing.niqud import Niqud
-from parsing.symbols import (LETTERS, LRE, NEQUDOT_SYMBOLS_TO_NAMES, PDF,
-                             TAAMIM_NAMES_TO_SYMBOLS, TAAMIM_SYMBOLS_TO_NAMES)
+from parsing.symbols import TAAME_MESHARET
 from parsing.taam import Taam
 from parsing.word import Word
+
+
+class TaamSequenceResult:
+    """
+    A TaamSequenceResult is a result of a search for a sequence of Taamim.
+    """
+
+    def __init__(self, word_idxs: List[List[int]]):
+        self._word_idxs = word_idxs
+
+    @property
+    def word_idxs(self) -> List[List[int]]:
+        """
+        Get the indices of the words in the Taam sequence.
+
+        :return: The indices of the words in the Taam sequence.
+        """
+        return self._word_idxs
+
+    def __iter__(self):
+        return iter(self._word_idxs)
 
 
 class Verse:
@@ -56,12 +74,12 @@ class Verse:
                 continue
             words.append(Word.from_string(w))
 
-        # change any qadmas that are followed by a qadma to azlas
+        # change any qadmas that are followed by a gerish to azlas
         for wd1, wd2 in zip(words, words[1:]):
-            if wd1.has_taam("pashta") and wd2.has_taam("gerish"):
-                wd1.rename_taam("pashta", "azla")
-            elif wd1.has_taam("pashta") and wd1.has_taam("gerish"):
-                wd1.rename_taam("pashta", "azla")
+            if wd1.has_taam("qadma") and (
+                wd2.has_taam("gerish") or wd1.has_taam("gerish")
+            ):
+                wd1.rename_taam("qadma", "azla")
 
         return cls(idx, Verse.trim_word_list(words))
 
@@ -119,30 +137,50 @@ class Verse:
         """
         return any(word.has_taam(taam_name) for word in self._words)
 
-    def has_taam_sequence(
+    def find_taam_sequence(
         self, taam_sequence: List[str], include_meshartim: bool = True
-    ) -> bool:
+    ) -> Optional[TaamSequenceResult]:
         """
         Check if the Verse contains a sequence of Taamim.
 
         :param taam_sequence: The sequence of Taamim.
-        :return: True if the Verse contains the sequence, False otherwise.
+        :return: The inner lists are the indices of the words in a sequence.
+                 If there is more than one sequence, the outer list contains
+                 all the sequences.
         """
-        all_taamim = [
-            taam
-            for word in self._words
-            for taam in (
-                word.taamim if include_meshartim else word.taamim_without_meshartim
-            )
-            if taam.name != "maamid"
-        ]
-        for i in range(len(all_taamim) - len(taam_sequence) + 1):
-            if all(
-                all_taamim[i + j].name == taam_sequence[j]
-                for j in range(len(taam_sequence))
-            ):
-                return True
-        return False
+        # exclude meshartim if necessary
+        if not include_meshartim:
+            taam_sequence = [
+                taam_name
+                for taam_name in taam_sequence
+                if taam_name not in TAAME_MESHARET
+            ]
+        seqs = []
+        curr_seq, seq_idx = [], 0
+        for word_idx, word in enumerate(self._words):
+            for letter in word:
+
+                if seq_idx == len(taam_sequence):
+                    seqs.append(curr_seq)
+                    curr_seq, seq_idx = [], 0
+                    break
+
+                if len(letter.taamim) == 0 or (
+                    not include_meshartim
+                    and any(t.name in TAAME_MESHARET for t in letter.taamim)
+                ):
+                    continue
+
+                if letter.has_taam(taam_sequence[seq_idx]):
+                    curr_seq.append(word_idx)
+                    seq_idx += 1
+                else:
+                    curr_seq, seq_idx = [], 0
+
+        if seq_idx == len(taam_sequence):
+            seqs.append(curr_seq)
+        seqs = [sorted(set(seq)) for seq in seqs]
+        return TaamSequenceResult(seqs) if seqs else None
 
     def count_taam(self, taam_name: str) -> int:
         """

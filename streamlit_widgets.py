@@ -1,16 +1,16 @@
 import pathlib
-from collections import Counter, defaultdict
-from typing import Dict
+from collections import Counter
 
 import pandas as pd
 import streamlit as st
 
 from parsing import Book
-from parsing.symbols import (TAAM_ENGLISH_TO_HEBREW_NAMES,
-                             TAAM_HEBREW_TO_ENGLISH_NAMES)
-from utils.plotting_utils import (MIN_OCCURRENCES,
-                                  plot_taamim_frequency_bar_chart,
-                                  plot_taamim_sequence_frequency_bar_chart)
+from parsing.symbols import TAAM_HEBREW_TO_ENGLISH_NAMES, TAAME_MESHARET
+from utils.plotting_utils import (
+    MIN_OCCURRENCES,
+    plot_taamim_frequency_bar_chart,
+    plot_taamim_sequence_frequency_bar_chart,
+)
 
 ALL_BOOK_NAMES = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
@@ -36,17 +36,12 @@ def extract_taamim_data(book: Book, include_meshartim: bool = True) -> pd.DataFr
     :param include_meshartim: Whether to include meshartim in the analysis.
     :return: A Counter object containing the frequency of each ta'am in the book.
     """
-    taamim = [
-        taam.name
-        for taam in (
-            book.taamim if include_meshartim else book.taamim_without_meshartim
-        )
-    ]
-    taamim_counter = Counter(taamim)
-    return taamim_counter
+    taamim = book.taamim if include_meshartim else book.taamim_without_meshartim
+    taam_names = [t.name for t in taamim]
+    return Counter(taam_names)
 
 
-def taam_distribution_widget(include_meshartim: bool):
+def overall_taam_distribution_widget(include_meshartim: bool):
     """
     Render the ta'amim distribution widget.
 
@@ -114,27 +109,42 @@ def taam_sequence_finder_widget(include_meshartim: bool):
     st.write(
         "This tool allows you to find all verses that contain a specific sequence of ta'amim."
     )
-
-    taam_sequence = st.multiselect(
-        "Select ta'amim", sorted(TAAM_HEBREW_TO_ENGLISH_NAMES.keys())
-    )
+    valid_taamim = sorted(TAAM_HEBREW_TO_ENGLISH_NAMES.keys())
+    if not include_meshartim:
+        valid_taamim = [taam for taam in valid_taamim if taam not in TAAME_MESHARET]
+    taam_sequence = st.multiselect("Select ta'amim", valid_taamim)
 
     if len(taam_sequence) > 0:
-        verses = defaultdict(list)
-        for book_name in ALL_BOOK_NAMES:
-            book = load_book(book_name)
-            seq = [TAAM_HEBREW_TO_ENGLISH_NAMES[taam] for taam in taam_sequence]
-            verses[book_name].extend(
-                book.find_verses_with_taam_sequence(seq, include_meshartim)
+        book_dict = {
+            book_name: load_book(book_name).find_verses_with_taam_sequence(
+                [TAAM_HEBREW_TO_ENGLISH_NAMES[taam] for taam in taam_sequence],
+                include_meshartim,
             )
-
-        if sum(len(v) for v in verses.values()) == 0:
+            for book_name in ALL_BOOK_NAMES
+        }
+        if sum(len(v) for v in book_dict.values()) == 0:
             st.write("No verses found with the selected ta'amim sequence.")
             return
 
-        for book_name, verses in verses.items():
-            if len(verses) == 0:
-                continue
-            with st.expander(f"{book_name}: {len(verses)} verses"):
-                for verse in verses:
-                    st.markdown(verse)
+        for book_name, verse_dict in book_dict.items():
+            with st.expander(book_name):
+                for parasha_name, aliyot in verse_dict.items():
+                    st.markdown(f"### {parasha_name}")
+                    for i, verse_list in enumerate(aliyot):
+                        st.markdown(f"##### Aliyah {i + 1}")
+                        for verse, idx_lists in verse_list:
+                            flat_idxs = {
+                                idx for idx_list in idx_lists for idx in idx_list
+                            }
+                            # display the part of the verse with the ta'am sequence in green
+                            wds = [
+                                (
+                                    wds.append(
+                                        f'<span style="color:blue">**{word}**</span>'
+                                    )
+                                    if ix in flat_idxs
+                                    else str(word)
+                                )
+                                for ix, word in enumerate(verse)
+                            ]
+                            st.markdown(" ".join(wds), unsafe_allow_html=True)
