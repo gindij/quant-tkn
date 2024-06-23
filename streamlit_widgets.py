@@ -1,5 +1,6 @@
 import pathlib
 from collections import Counter
+from typing import List
 
 import pandas as pd
 import streamlit as st
@@ -99,21 +100,7 @@ def taam_sequence_distribution_widget(include_meshartim: bool):
     )
 
 
-def taam_sequence_finder_widget(include_meshartim: bool):
-    """
-    Render the ta'amim sequence finder widget.
-
-    :param include_meshartim: Whether to include meshartim in the analysis.
-    """
-    st.header("Ta'amim Sequence Finder")
-    st.write(
-        "This tool allows you to find all verses that contain a specific sequence of ta'amim."
-    )
-    valid_taamim = sorted(TAAM_HEBREW_TO_ENGLISH_NAMES.keys())
-    if not include_meshartim:
-        valid_taamim = [taam for taam in valid_taamim if taam not in TAAME_MESHARET]
-    taam_sequence = st.multiselect("Select ta'amim", valid_taamim)
-
+def _taam_seq_finder_widget(taam_sequence: List[str], include_meshartim: bool):
     if len(taam_sequence) > 0:
         book_dict = {
             book_name: load_book(book_name).find_verses_with_taam_sequence(
@@ -139,12 +126,46 @@ def taam_sequence_finder_widget(include_meshartim: bool):
                             # display the part of the verse with the ta'am sequence in green
                             wds = [
                                 (
-                                    wds.append(
-                                        f'<span style="color:blue">**{word}**</span>'
-                                    )
+                                    f'<span style="color:blue">**{word}**</span>'
                                     if ix in flat_idxs
                                     else str(word)
                                 )
                                 for ix, word in enumerate(verse)
                             ]
                             st.markdown(" ".join(wds), unsafe_allow_html=True)
+
+
+def taam_sequence_finder_widget(include_meshartim: bool):
+    """
+    Render the ta'amim sequence finder widget.
+
+    :param include_meshartim: Whether to include meshartim in the analysis.
+    """
+    st.header("Ta'amim Sequence Finder")
+    st.write(
+        "This tool allows you to find all verses that contain a specific sequence of ta'amim."
+    )
+    valid_taamim = sorted(TAAM_HEBREW_TO_ENGLISH_NAMES.keys())
+    if not include_meshartim:
+        valid_taamim = [taam for taam in valid_taamim if taam not in TAAME_MESHARET]
+    taam_sequence = st.multiselect(
+        "Select ta'amim", valid_taamim, placeholder="Choose one or more ta'amim"
+    )
+    _taam_seq_finder_widget(taam_sequence, include_meshartim)
+
+
+def double_taam_finder_widget(include_meshartim: bool):
+    """
+    Render the double ta'amim finder widget.
+
+    :param include_meshartim: Whether to include meshartim in the analysis.
+    """
+    st.header("Double Ta'amim Finder")
+    st.write(
+        "This tool allows you to find all verses that contain a particular ta'am twice in a row."
+    )
+    valid_taamim = sorted(TAAM_HEBREW_TO_ENGLISH_NAMES.keys())
+    if not include_meshartim:
+        valid_taamim = [taam for taam in valid_taamim if taam not in TAAME_MESHARET]
+    taam = st.selectbox("Select ta'amim", valid_taamim)
+    _taam_seq_finder_widget([taam, taam], include_meshartim)

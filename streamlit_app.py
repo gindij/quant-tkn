@@ -6,6 +6,7 @@ from streamlit_widgets import (
     overall_taam_distribution_widget,
     taam_sequence_distribution_widget,
     taam_sequence_finder_widget,
+    double_taam_finder_widget,
 )
 
 if __name__ == "__main__":
@@ -61,5 +62,6 @@ if __name__ == "__main__":
     with taamim:
         include_meshartim = st.checkbox("Include Meshartim", value=True)
         taam_sequence_finder_widget(include_meshartim=include_meshartim)
+        double_taam_finder_widget(include_meshartim=include_meshartim)
         taam_sequence_distribution_widget(include_meshartim=include_meshartim)
         overall_taam_distribution_widget(include_meshartim=include_meshartim)
