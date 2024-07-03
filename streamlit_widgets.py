@@ -98,6 +98,10 @@ def taam_sequence_distribution_widget(include_meshartim: bool):
     )
 
 
+def _highlight_word(word_str):
+    return f'<span style="color:blue">{word_str}</span>'
+
+
 def _taam_seq_finder_widget(taam_sequence: List[str], include_meshartim: bool):
     if len(taam_sequence) > 0:
         book_dict = {
@@ -128,7 +132,7 @@ def _taam_seq_finder_widget(taam_sequence: List[str], include_meshartim: bool):
                                 # display the part of the verse with the ta'am sequence in green
                                 wds = [
                                     (
-                                        f'<span style="color:blue">**{word}**</span>'
+                                        _highlight_word(word)
                                         if ix in flat_idxs
                                         else str(word)
                                     )
