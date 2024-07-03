@@ -147,8 +147,7 @@ class Book:
             verses_by_aliyah = parasha.find_verses_with_taam_sequence(
                 taam_sequence, include_meshartim
             )
-            if verses_by_aliyah:
-                by_parasha[parasha.name] = verses_by_aliyah
+            by_parasha[parasha.name] = verses_by_aliyah
         return by_parasha
 
     def count_n_taam_sequences(

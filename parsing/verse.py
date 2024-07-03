@@ -180,7 +180,7 @@ class Verse:
         if seq_idx == len(taam_sequence):
             seqs.append(curr_seq)
         seqs = [sorted(set(seq)) for seq in seqs]
-        return TaamSequenceResult(seqs) if seqs else None
+        return TaamSequenceResult(seqs)
 
     def count_taam(self, taam_name: str) -> int:
         """

@@ -1,13 +1,12 @@
 import pandas as pd
 import streamlit as st
 
-from parsing.symbols import TAAM_HEBREW_TO_ENGLISH_NAMES, convert_taam_name_to_symbol
-from streamlit_widgets import (
-    overall_taam_distribution_widget,
-    taam_sequence_distribution_widget,
-    taam_sequence_finder_widget,
-    double_taam_finder_widget,
-)
+from parsing.symbols import (TAAM_HEBREW_TO_ENGLISH_NAMES,
+                             convert_taam_name_to_symbol)
+from streamlit_widgets import (double_taam_finder_widget,
+                               overall_taam_distribution_widget,
+                               taam_sequence_distribution_widget,
+                               taam_sequence_finder_widget)
 
 if __name__ == "__main__":
     st.title("Quantitative Ta'amim Analysis")

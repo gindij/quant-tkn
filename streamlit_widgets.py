@@ -7,11 +7,9 @@ import streamlit as st
 
 from parsing import Book
 from parsing.symbols import TAAM_HEBREW_TO_ENGLISH_NAMES, TAAME_MESHARET
-from utils.plotting_utils import (
-    MIN_OCCURRENCES,
-    plot_taamim_frequency_bar_chart,
-    plot_taamim_sequence_frequency_bar_chart,
-)
+from utils.plotting_utils import (MIN_OCCURRENCES,
+                                  plot_taamim_frequency_bar_chart,
+                                  plot_taamim_sequence_frequency_bar_chart)
 
 ALL_BOOK_NAMES = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
@@ -116,23 +114,27 @@ def _taam_seq_finder_widget(taam_sequence: List[str], include_meshartim: bool):
         for book_name, verse_dict in book_dict.items():
             with st.expander(book_name):
                 for parasha_name, aliyot in verse_dict.items():
-                    st.markdown(f"### {parasha_name}")
+                    if any(v[1] for v in aliyot):
+                        st.markdown(f"### {parasha_name}")
                     for i, verse_list in enumerate(aliyot):
-                        st.markdown(f"##### Aliyah {i + 1}")
-                        for verse, idx_lists in verse_list:
-                            flat_idxs = {
-                                idx for idx_list in idx_lists for idx in idx_list
-                            }
-                            # display the part of the verse with the ta'am sequence in green
-                            wds = [
-                                (
-                                    f'<span style="color:blue">**{word}**</span>'
-                                    if ix in flat_idxs
-                                    else str(word)
-                                )
-                                for ix, word in enumerate(verse)
-                            ]
-                            st.markdown(" ".join(wds), unsafe_allow_html=True)
+                        for verse, seq_result in verse_list:
+                            if len(seq_result.word_idxs) > 0:
+                                st.markdown(f"#### Aliyah {i + 1}")
+                                flat_idxs = {
+                                    idx
+                                    for idx_list in seq_result.word_idxs
+                                    for idx in idx_list
+                                }
+                                # display the part of the verse with the ta'am sequence in green
+                                wds = [
+                                    (
+                                        f'<span style="color:blue">**{word}**</span>'
+                                        if ix in flat_idxs
+                                        else str(word)
+                                    )
+                                    for ix, word in enumerate(verse)
+                                ]
+                                st.markdown(" ".join(wds), unsafe_allow_html=True)
 
 
 def taam_sequence_finder_widget(include_meshartim: bool):

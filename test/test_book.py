@@ -41,7 +41,9 @@ def test_find_verses_with_taam_sequence():
     verses_with_meshartim = book.find_verses_with_taam_sequence(
         seq1, include_meshartim=True
     )
-    num_verses_with_meshartim = len(verses_with_meshartim["Bereshit"][0])
+    num_verses_with_meshartim = len(
+        [v for v in verses_with_meshartim["Bereshit"][0] if v[1] != []]
+    )
     assert num_verses_with_meshartim == 4
 
     verses_without_meshartim = book.find_verses_with_taam_sequence(
@@ -54,4 +56,5 @@ def test_find_verses_with_taam_sequence():
 
     seq2 = ["paseq", "pashta"]
     verses = book.find_verses_with_taam_sequence(seq2, include_meshartim=True)
-    assert len(verses) == 1
+    num_verses = len([v for v in verses["Bereshit"][0] if v[1] != []])
+    assert num_verses == 1

@@ -64,7 +64,7 @@ def test_find_taam_sequence():
     ]
     assert (
         verse.find_taam_sequence(["tarha", "atnah", "tarha"], include_meshartim=True)
-        is None
+        == []
     )
 
 
