@@ -118,12 +118,13 @@ def _taam_seq_finder_widget(taam_sequence: List[str], include_meshartim: bool):
         for book_name, verse_dict in book_dict.items():
             with st.expander(book_name):
                 for parasha_name, aliyot in verse_dict.items():
-                    if any(v[1] for v in aliyot):
+                    if any(v for v in aliyot):
                         st.markdown(f"### {parasha_name}")
                     for i, verse_list in enumerate(aliyot):
+                        if verse_list:
+                            st.markdown(f"#### Aliyah {i + 1}")
                         for verse, seq_result in verse_list:
                             if len(seq_result.word_idxs) > 0:
-                                st.markdown(f"#### Aliyah {i + 1}")
                                 flat_idxs = {
                                     idx
                                     for idx_list in seq_result.word_idxs

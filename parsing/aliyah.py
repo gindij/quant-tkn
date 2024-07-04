@@ -44,7 +44,8 @@ class Aliyah:
         results = []
         for verse in self.verses:
             result = verse.find_taam_sequence(taam_sequence, include_meshartim)
-            results.append((verse, result))
+            if result.word_idxs:
+                results.append((verse, result))
         return results
 
     def count_n_taam_sequences(self, n: int, include_meshartim: bool = True) -> Counter:

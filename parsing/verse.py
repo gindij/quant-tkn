@@ -139,7 +139,7 @@ class Verse:
 
     def find_taam_sequence(
         self, taam_sequence: List[str], include_meshartim: bool = True
-    ) -> Optional[TaamSequenceResult]:
+    ) -> TaamSequenceResult:
         """
         Check if the Verse contains a sequence of Taamim.
 
