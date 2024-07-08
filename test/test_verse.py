@@ -11,7 +11,6 @@ def test_verse_from_string():
         "maarikh",
         "tarha",
         "maarikh",
-        "maamid",
         "sof_passuq",
     ]
     taam_names_without_meshartim = [
@@ -63,12 +62,33 @@ def test_find_taam_sequence():
         [4],
     ]
     assert (
-        verse.find_taam_sequence(["tarha", "atnah", "tarha"], include_meshartim=True)
+        verse.find_taam_sequence(
+            ["tarha", "atnah", "tarha"], include_meshartim=True
+        ).word_idxs
         == []
     )
+
+
+def test_find_taam_sequence_with_maqaf():
+    verse = Verse.from_string(
+        0, "וַיִּקְרָ֨א אֱלֹהִ֤ים ׀ לָאוֹר֙ י֔וֹם וְלַחֹ֖שֶׁךְ קָ֣רָא לָ֑יְלָה וַֽיְהִי־עֶ֥רֶב וַֽיְהִי־בֹ֖קֶר י֥וֹם אֶחָֽד׃"
+    )
+    assert verse.find_taam_sequence(
+        ["maarikh", "tarha"], include_meshartim=True
+    ).word_idxs == [[7, 8]]
 
 
 def test_count_taam():
     verse = Verse.from_string(0, "בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃")
     assert verse.count_taam("tarha") == 2
     assert verse.count_taam("zakef_katon") == 0
+
+
+def test_word_getters():
+    verse = Verse.from_string(
+        0, "וַיִּקְרָ֨א אֱלֹהִ֤ים ׀ לָאוֹר֙ י֔וֹם וְלַחֹ֖שֶׁךְ קָ֣רָא לָ֑יְלָה וַֽיְהִי־עֶ֥רֶב וַֽיְהִי־בֹ֖קֶר י֥וֹם אֶחָֽד׃"
+    )
+    for word in verse.taam_words:
+        print(word)
+    assert len(verse.taam_words) == 11
+    assert len(verse.words) == 13

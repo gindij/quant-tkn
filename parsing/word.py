@@ -1,7 +1,7 @@
 from typing import List
 
 from parsing.letter import Letter
-from parsing.symbols import LETTERS, TAAME_MESHARET
+from parsing.symbols import LETTERS, MAQAF, TAAME_MESHARET
 from parsing.taam import Taam
 
 
@@ -44,6 +44,8 @@ class Word:
         :param word: The string to create the Word from.
         :return: The Word.
         """
+        if len(word) == 1 and word[0] == MAQAF:
+            return cls([Letter(MAQAF)])
         letters = []
         for i, letter in enumerate(word):
             if letter in LETTERS:
@@ -54,6 +56,15 @@ class Word:
                     curr_letter.append(word[j])
                 letters.append(Letter.from_string("".join(curr_letter)))
         return cls(letters)
+
+    @property
+    def is_maqaf(self):
+        """
+        Check if the Word is a Maqaf.
+
+        :return: True if the Word is a Maqaf, False otherwise.
+        """
+        return str(self) == MAQAF
 
     @property
     def taamim_without_meshartim(self):

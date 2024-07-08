@@ -61,3 +61,11 @@ def test_rename_taam():
     letter.rename_taam("pazer_gadol", "pazer_katan")
     assert not letter.has_taam("pazer_gadol")
     assert letter.has_taam("pazer_katan")
+
+
+def test_is_maqaf():
+    letter = Letter("־")
+    assert letter.is_maqaf
+
+    letter = Letter("מ")
+    assert not letter.is_maqaf

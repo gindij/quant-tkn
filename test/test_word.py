@@ -36,3 +36,11 @@ def test_rename_taam():
     assert word.has_taam("qadma")
 
     assert len(word.taamim_without_meshartim) == 0
+
+
+def test_is_maqaf():
+    word = Word.from_string("וַיֹּ֣אמֶר")
+    assert not word.is_maqaf
+
+    word = Word.from_string("־")
+    assert word.is_maqaf

@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from parsing.niqud import Niqud
-from parsing.symbols import NEQUDOT_SYMBOLS, TAAMIM_SYMBOLS
+from parsing.symbols import MAQAF, NEQUDOT_SYMBOLS, TAAMIM_SYMBOLS
 from parsing.taam import Taam
 
 
@@ -43,6 +43,15 @@ class Letter:
             elif ci in NEQUDOT_SYMBOLS:
                 nequdot.append(Niqud.from_symbol(ci))
         return cls(letter, taamim, nequdot)
+
+    @property
+    def is_maqaf(self):
+        """
+        Check if the Letter is a maqaf.
+
+        :return: True if the Letter is a maqaf, False otherwise.
+        """
+        return self.letter == MAQAF
 
     @property
     def taamim(self):

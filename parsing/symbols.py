@@ -2,44 +2,42 @@ LRE = "\u202A"
 PDF = "\u202C"
 SKIP_SEQUENCE = "xxxx"
 
-LETTERS = "־אבגדהוזחטיכלמנסעפצקרשתךםןףץ"
+LETTERS = "אבגדהוזחטיכלמנסעפצקרשתךםןףץ"
+MAQAF = "\u05BE"
+MAAMID = "\u05BD"
 TAAMIM_SYMBOLS_TO_NAMES = {
     "\u0591": "atnah",
-    "\u0592": "segolta",
-    "\u0593": "shalshelet",
-    "\u0594": "zaqef_qaton",
-    "\u0595": "zaqef_gadol",
-    "\u0596": "tarha",
-    "\u0597": "ravia",
+    "\u05C3": "sof_passuq",
     "\u0598": "zarqa",
-    "\u0599": "pashta",
-    "\u059A": "yetiv",
-    "\u059B": "tevir",
-    "\u059C": "gerish",
-    "\u059E": "shene_gerishin",
-    "\u059F": "karne_farah",
-    "\u05A0": "talsa",
-    "\u05A1": "pazer_gadol",
-    "\u05A2": "yareah_ben_yomo",
+    "\u0592": "segolta",
     "\u05A3": "shofar_holekh",
+    "\u059A": "yetiv",
     "\u05A4": "shofar_mehupakh",
-    "\u05A5": "maarikh",
-    "\u05A6": "tere_taame",
-    "\u05A7": "darga",
     "\u05A8": "qadma",
     "\u0599\u0599": "tere_qadmin",
-    "\u05A9": "talsha",
-    "\u05AA": "yareah_ben_yomo",
-    "\u05AE": "zarqa",
-    "\u05BD": "maamid",
+    "\u0599": "pashta",
+    "\u0594": "zaqef_qaton",
+    "\u0595": "zaqef_gadol",
+    "\u05A5": "maarikh",
+    "\u0596": "tarha",
     "\u05C0": "paseq",
-    "\u05C3": "sof_passuq",
+    "\u0597": "ravia",
+    "\u05A7": "darga",
+    "\u059B": "tevir",
+    "\u05A9": "talsha",
+    "\u05A0": "talsa",
+    "\u059C": "gerish",
+    "\u059E": "shene_gerishin",
+    "\u05A1": "pazer_gadol",
+    "\u0593": "shalshelet",
+    "\u05A6": "tere_taame",
+    "\u05AA": "yareah_ben_yomo",
+    "\u059F": "karne_farah",
 }
 TAAMIM_NAMES_TO_SYMBOLS = {v: k for k, v in TAAMIM_SYMBOLS_TO_NAMES.items()}
 TAAMIM_SYMBOLS = set(TAAMIM_SYMBOLS_TO_NAMES.keys())
 TAAMIM_NAMES = set(TAAMIM_NAMES_TO_SYMBOLS.keys())
 TAAME_MESHARET = {
-    "maamid",
     "shofar_holekh",
     "shofar_mehupakh",
     "talsha",
@@ -75,7 +73,6 @@ TAAM_ENGLISH_TO_HEBREW_NAMES = {
     "tere_qadmin": "תרי קדמין",
     "talsha": "טלשא",
     "sof_passuq": "סוף פסוק",
-    "maamid": "מעמיד",
     "paseq": "פסק",
     "azla": "אזלא",
 }
@@ -95,7 +92,7 @@ def convert_taam_name_to_symbol(name: str) -> str:
 
 
 NEQUDOT_SYMBOLS_TO_NAMES = {
-    "\u05B0": "shva",
+    "\u05B0": "sheva",
     "\u05B1": "hataf_segol",
     "\u05B2": "hataf_patah",
     "\u05B3": "hataf_qamats",

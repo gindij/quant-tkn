@@ -137,7 +137,7 @@ def _taam_seq_finder_widget(taam_sequence: List[str], include_meshartim: bool):
                                         if ix in flat_idxs
                                         else str(word)
                                     )
-                                    for ix, word in enumerate(verse)
+                                    for ix, word in enumerate(verse.taam_words)
                                 ]
                                 st.markdown(" ".join(wds), unsafe_allow_html=True)
 

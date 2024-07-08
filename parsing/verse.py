@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from parsing.symbols import TAAME_MESHARET
+from parsing.symbols import MAQAF, TAAME_MESHARET, TAAMIM_NAMES_TO_SYMBOLS
 from parsing.taam import Taam
 from parsing.word import Word
 
@@ -31,7 +31,9 @@ class Verse:
     A Verse is a sequence of words.
     """
 
-    def __init__(self, idx: int, words: List[Word]):
+    def __init__(
+        self, idx: int, words: List[Word], maqaf_indices: Optional[List[int]] = None
+    ):
         self.idx = idx
         self._words = words
         self._letters = [letter for word in words for letter in word.letters]
@@ -40,6 +42,7 @@ class Verse:
             taam for word in words for taam in word.taamim_without_meshartim
         ]
         self._nequdot = [niqud for letter in self._letters for niqud in letter.nequdot]
+        self._maqaf_indices = maqaf_indices if maqaf_indices is not None else []
 
     @staticmethod
     def trim_word_list(words: List[Word]) -> List[Word]:
@@ -66,13 +69,19 @@ class Verse:
         """
         words = []
         for w in s.split():
-            if w == "\u05C0":
+            if w == TAAMIM_NAMES_TO_SYMBOLS["paseq"]:
                 new_letters = words[-1].letters
                 new_letters[-1].add_taam(Taam.from_name("paseq"))
                 # trigger re-eval of constructor to make sure paseq is included
                 words[-1] = Word(new_letters)
                 continue
-            words.append(Word.from_string(w))
+            if MAQAF in w:
+                for subword in w.split(MAQAF):
+                    words.append(Word.from_string(subword))
+                    words.append(Word.from_string(MAQAF))
+                words.pop()
+            else:
+                words.append(Word.from_string(w))
 
         # change any qadmas that are followed by a gerish to azlas
         for wd1, wd2 in zip(words, words[1:]):
@@ -126,7 +135,23 @@ class Verse:
 
         :return: The words in the Verse.
         """
-        return self._words
+        return [word for word in self._words if not word.is_maqaf]
+
+    @property
+    def taam_words(self):
+        """
+        Get the words in the Verse, but where words that have maqafs between
+        them are combined into a single word.
+
+        :return: The words in the Verse connected with maqafs (if they're there).
+        """
+        words = []
+        for word in self._words:
+            if word.is_maqaf or (len(words) > 0 and words[-1].letters[-1].is_maqaf):
+                words[-1] = Word(words[-1].letters + word.letters)
+            else:
+                words.append(word)
+        return words
 
     def has_taam(self, taam_name: str) -> bool:
         """
@@ -157,9 +182,8 @@ class Verse:
             ]
         seqs = []
         curr_seq, seq_idx = [], 0
-        for word_idx, word in enumerate(self._words):
+        for word_idx, word in enumerate(self.taam_words):
             for letter in word:
-
                 if seq_idx == len(taam_sequence):
                     seqs.append(curr_seq)
                     curr_seq, seq_idx = [], 0
@@ -189,7 +213,7 @@ class Verse:
         :param taam_name: The name of the Taam.
         :return: The number of occurrences of the Taam.
         """
-        return sum(word.has_taam(taam_name) for word in self._words)
+        return sum(word.has_taam(taam_name) for word in self.taam_words)
 
     def __iter__(self):
         return iter(self._words)

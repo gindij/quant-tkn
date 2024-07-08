@@ -23,7 +23,7 @@ def test_book_from_string():
     assert book.name == "Genesis"
     assert len(book.chapters) == 1
     assert len(book.verses) == 7
-    assert len(book.verses[0].words) == 7
+    assert len(book.verses[0].taam_words) == 7
 
 
 def test_book_from_text_file():
@@ -31,7 +31,7 @@ def test_book_from_text_file():
     assert book.name == "Genesis"
     assert len(book.chapters) == 50
     assert len(book.verses) == 1533
-    assert len(book.verses[0].words) == 7
+    assert len(book.verses[0].taam_words) == 7
 
 
 def test_find_verses_with_taam_sequence():
@@ -42,9 +42,9 @@ def test_find_verses_with_taam_sequence():
         seq1, include_meshartim=True
     )
     num_verses_with_meshartim = len(
-        [v for v in verses_with_meshartim["Bereshit"][0] if v[1] != []]
+        [v for v in verses_with_meshartim["Bereshit"][0] if v[1].word_idxs != []]
     )
-    assert num_verses_with_meshartim == 4
+    assert num_verses_with_meshartim == 5, verses_with_meshartim
 
     verses_without_meshartim = book.find_verses_with_taam_sequence(
         seq1, include_meshartim=False
