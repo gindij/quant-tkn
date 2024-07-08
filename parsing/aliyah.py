@@ -1,6 +1,28 @@
 from typing import Counter, Iterator, List, Tuple
 
-from parsing.verse import TaamSequenceResult, Verse
+from parsing.verse import VerseTaamSequenceResult, Verse
+
+
+class AliyahTaamSequenceResult:
+    """
+    An AliyahTaamSequenceResult is a result of a search for a sequence of Taamim
+    for all verses in an Aliyah.
+    """
+
+    def __init__(self, verse_results: List[VerseTaamSequenceResult]):
+        self._verse_results = verse_results
+
+    @property
+    def verse_results(self) -> VerseTaamSequenceResult:
+        """
+        A collection of verse results across an Aliyah.
+
+        :return: The verse results.
+        """
+        return self._verse_results
+
+    def __iter__(self) -> Iterator[Tuple[Verse, VerseTaamSequenceResult]]:
+        return iter(self._verse_results)
 
 
 class Aliyah:
@@ -33,7 +55,7 @@ class Aliyah:
 
     def find_verses_with_taam_sequence(
         self, taam_sequence: List[str], include_meshartim: bool = True
-    ) -> List[Tuple[Verse, TaamSequenceResult]]:
+    ) -> AliyahTaamSequenceResult:
         """
         Find verses with a sequence of Taamim.
 

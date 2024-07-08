@@ -1,13 +1,32 @@
 from collections import Counter
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import tqdm
 
 from parsing.chapter import Chapter
 from parsing.metadata import BookMetadata
-from parsing.parasha import Parasha
-from parsing.verse import TaamSequenceResult, Verse
+from parsing.parasha import Parasha, ParashaTaamSequenceResult
+from parsing.verse import Verse
 from utils.text_parsing_utils import TextParsingUtils
+
+
+class BookTaamSequenceResult:
+    """
+    A BookTaamSequenceResult is a result of a search for a sequence of Taamim
+    for all verses in a Book.
+    """
+
+    def __init__(self, parasha_results: Dict[str, ParashaTaamSequenceResult]):
+        self._parasha_results = parasha_results
+
+    @property
+    def parasha_results(self) -> Dict[str, ParashaTaamSequenceResult]:
+        """
+        A collection of Parasha results across a Book.
+
+        :return: The Parasha results.
+        """
+        return self._parasha_results
 
 
 class Book:
@@ -132,7 +151,7 @@ class Book:
 
     def find_verses_with_taam_sequence(
         self, taam_sequence: List[str], include_meshartim: bool = True
-    ) -> Dict[str, List[List[Tuple[Verse, TaamSequenceResult]]]]:
+    ) -> Dict[str, ParashaTaamSequenceResult]:
         """
         Find verses with a sequence of Taamim broken down by parasha and aliyah.
 
@@ -144,10 +163,10 @@ class Book:
         """
         by_parasha = {}
         for parasha in self.parshiot:
-            verses_by_aliyah = parasha.find_verses_with_taam_sequence(
+            parasha_results_by_aliyah = parasha.find_verses_with_taam_sequence(
                 taam_sequence, include_meshartim
             )
-            by_parasha[parasha.name] = verses_by_aliyah
+            by_parasha[parasha.name] = parasha_results_by_aliyah
         return by_parasha
 
     def count_n_taam_sequences(

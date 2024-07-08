@@ -7,12 +7,15 @@ import streamlit as st
 
 from parsing import Book
 from parsing.symbols import TAAM_HEBREW_TO_ENGLISH_NAMES, TAAME_MESHARET
-from utils.plotting_utils import (MIN_OCCURRENCES,
-                                  plot_taamim_frequency_bar_chart,
-                                  plot_taamim_sequence_frequency_bar_chart)
+from utils.plotting_utils import (
+    MIN_OCCURRENCES,
+    plot_taamim_frequency_bar_chart,
+    plot_taamim_sequence_frequency_bar_chart,
+)
 
 ALL_BOOK_NAMES = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]
 BASE_PATH = pathlib.Path(__file__).parent.resolve()
+HIGHLIGHT_COLOR = "#0362fc"
 
 
 @st.cache_data
@@ -98,8 +101,8 @@ def taam_sequence_distribution_widget(include_meshartim: bool):
     )
 
 
-def _highlight_word(word_str):
-    return f'<span style="color:blue">{word_str}</span>'
+def _highlight_word(word_str: str, color: str):
+    return f'<span style="color:{color}">**{word_str}**</span>'
 
 
 def _taam_seq_finder_widget(taam_sequence: List[str], include_meshartim: bool):
@@ -117,23 +120,25 @@ def _taam_seq_finder_widget(taam_sequence: List[str], include_meshartim: bool):
 
         for book_name, verse_dict in book_dict.items():
             with st.expander(book_name):
-                for parasha_name, aliyot in verse_dict.items():
-                    if any(v for v in aliyot):
+                for parasha_name, parasha_result in verse_dict.items():
+                    if any(v for v in parasha_result):
                         st.markdown(f"### {parasha_name}")
-                    for i, verse_list in enumerate(aliyot):
-                        if verse_list:
+                    for i, aliyah_result in enumerate(parasha_result):
+                        if len(aliyah_result) > 0:
                             st.markdown(f"#### Aliyah {i + 1}")
-                        for verse, seq_result in verse_list:
-                            if len(seq_result.word_idxs) > 0:
+                        for verse, verse_result in aliyah_result:
+                            if len(verse_result.word_idxs) > 0:
                                 flat_idxs = {
                                     idx
-                                    for idx_list in seq_result.word_idxs
+                                    for idx_list in verse_result.word_idxs
                                     for idx in idx_list
                                 }
                                 # display the part of the verse with the ta'am sequence in green
                                 wds = [
                                     (
-                                        _highlight_word(word)
+                                        _highlight_word(
+                                            word_str=word, color=HIGHLIGHT_COLOR
+                                        )
                                         if ix in flat_idxs
                                         else str(word)
                                     )

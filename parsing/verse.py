@@ -5,12 +5,13 @@ from parsing.taam import Taam
 from parsing.word import Word
 
 
-class TaamSequenceResult:
+class VerseTaamSequenceResult:
     """
     A TaamSequenceResult is a result of a search for a sequence of Taamim.
     """
 
-    def __init__(self, word_idxs: List[List[int]]):
+    def __init__(self, verse: "Verse", word_idxs: List[List[int]]):
+        self._verse = verse
         self._word_idxs = word_idxs
 
     @property
@@ -22,8 +23,14 @@ class TaamSequenceResult:
         """
         return self._word_idxs
 
-    def __iter__(self):
-        return iter(self._word_idxs)
+    @property
+    def verse(self) -> "Verse":
+        """
+        Get the verse that may contain the taam sequence.
+
+        :return: The verse that may contain the taam sequence.
+        """
+        return self._verse
 
 
 class Verse:
@@ -164,7 +171,7 @@ class Verse:
 
     def find_taam_sequence(
         self, taam_sequence: List[str], include_meshartim: bool = True
-    ) -> TaamSequenceResult:
+    ) -> VerseTaamSequenceResult:
         """
         Check if the Verse contains a sequence of Taamim.
 
@@ -204,7 +211,7 @@ class Verse:
         if seq_idx == len(taam_sequence):
             seqs.append(curr_seq)
         seqs = [sorted(set(seq)) for seq in seqs]
-        return TaamSequenceResult(seqs)
+        return VerseTaamSequenceResult(self, seqs)
 
     def count_taam(self, taam_name: str) -> int:
         """

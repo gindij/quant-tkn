@@ -1,9 +1,28 @@
-from typing import Counter, List, Tuple
+from typing import Counter, List
 
-from parsing.aliyah import Aliyah
+from parsing.aliyah import Aliyah, AliyahTaamSequenceResult
 from parsing.chapter import Chapter
 from parsing.metadata import ParashaMetadata
-from parsing.verse import TaamSequenceResult, Verse
+
+
+class ParashaTaamSequenceResult:
+    """
+    A ParashaTaamSequenceResult is a result of a search for a sequence of Taamim
+    for all verses in a Parasha.
+    """
+
+    def __init__(self, aliyah_results: List[AliyahTaamSequenceResult]) -> None:
+        assert len(aliyah_results) == 7
+        self._aliyah_results = aliyah_results
+
+    @property
+    def aliyah_results(self) -> List[AliyahTaamSequenceResult]:
+        """
+        Get the results of the search for Taamim in the Parasha.
+
+        :return: The results of the search for Taamim in the Parasha.
+        """
+        return self._aliyah_results
 
 
 class Parasha:
@@ -75,7 +94,7 @@ class Parasha:
 
     def find_verses_with_taam_sequence(
         self, taam_sequence: List[str], include_meshartim: bool = True
-    ) -> List[List[Tuple[Verse, TaamSequenceResult]]]:
+    ) -> ParashaTaamSequenceResult:
         """
         Find the verses in the Parasha that contain a sequence of Taamim.
 
